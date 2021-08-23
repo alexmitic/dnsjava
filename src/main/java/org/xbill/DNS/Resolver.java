@@ -144,7 +144,7 @@ public interface Resolver {
    */
   default Message send(Message query) throws IOException {
     try {
-      CompletableFuture<Message> result = sendAsync(query).toCompletableFuture();
+      CompletableFuture<Message> result = sendAsync(query, "what").toCompletableFuture();
       return result.get(getTimeout().toMillis(), TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -172,6 +172,10 @@ public interface Resolver {
    */
   @SuppressWarnings("deprecation")
   default CompletionStage<Message> sendAsync(Message query) {
+    return sendAsync(query, "what");
+  }
+
+  default CompletionStage<Message> sendAsync(Message query, String s) {
     CompletableFuture<Message> f = new CompletableFuture<>();
     sendAsync(
         query,
@@ -205,7 +209,7 @@ public interface Resolver {
   @Deprecated
   default Object sendAsync(Message query, ResolverListener listener) {
     final Object id = new Object();
-    CompletionStage<Message> f = sendAsync(query);
+    CompletionStage<Message> f = sendAsync(query, "what");
     f.handleAsync(
         (result, throwable) -> {
           if (throwable != null) {
